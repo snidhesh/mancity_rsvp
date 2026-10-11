@@ -74,10 +74,18 @@
   })();
 
   /* ---------- transition: RSVP → slide up ---------- */
+  var kicked = false;
   document.getElementById("rsvp").addEventListener("click", function () {
+    if (kicked) return;
+    kicked = true;
     setAudio(true);
-    inv.classList.add("on");
-    sea.classList.add("gone");
+    var wrap = this.parentElement;
+    wrap.classList.add("kicked");
+    // Let the ball leave the frame before the invitation slides up.
+    window.setTimeout(function () {
+      inv.classList.add("on");
+      sea.classList.add("gone");
+    }, reduced ? 0 : 380);
   });
 
   /* ---------- day / slot availability (Dubai time) ---------- */

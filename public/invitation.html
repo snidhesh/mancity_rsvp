@@ -48,30 +48,51 @@
   #sea .splash-mark{display:block;width:min(320px,74vw);height:auto;filter:drop-shadow(0 8px 26px rgba(0,0,0,.55))}
   #sea .splash-sub{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.38em;text-transform:uppercase;color:var(--sky-hi);text-align:center;margin-top:-18px;text-shadow:0 2px 10px rgba(0,0,0,.5)}
 
-  /* the disc — outer hairline ring + inner glass disc with RSVP text */
+  /* the disc — outer hairline ring + a football with the RSVP label */
   .disc-wrap{position:relative;display:grid;place-items:center;
     width:min(220px,54vw);height:min(220px,54vw);
     border-radius:50%;border:1px solid rgba(255,255,255,.55);
-    box-shadow:0 2px 30px rgba(0,0,0,.25)}
+    box-shadow:0 2px 30px rgba(0,0,0,.25);
+    transition:border-color .6s ease,box-shadow .6s ease}
   #rsvp{position:relative;width:83%;height:83%;border-radius:50%;
-    display:grid;place-items:center;
-    font-family:var(--sans);font-size:15px;font-weight:500;letter-spacing:.3em;text-indent:.3em;color:#fff;
-    border:0;
-    background:rgba(108,171,221,.28);
-    backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
-    text-shadow:0 2px 10px rgba(0,0,0,.5);
+    display:grid;place-items:center;padding:0;
+    border:0;background:transparent;cursor:pointer;
+    filter:drop-shadow(0 14px 22px rgba(0,0,0,.45));
     transform-origin:center center;
     animation:heartbeat 1.4s ease-in-out infinite;
-    transition:background .3s ease}
-  #rsvp:hover,#rsvp:focus-visible{background:rgba(108,171,221,.5);outline:none}
+    transition:transform .3s ease}
+  #rsvp .ball{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;
+    animation:roll 22s linear infinite}
+  #rsvp .label{position:relative;z-index:1;display:grid;place-items:center;
+    width:46%;height:46%;border-radius:50%;
+    background:radial-gradient(circle at 40% 35%,var(--navy2),var(--navy) 70%);
+    box-shadow:inset 0 0 0 2px rgba(108,171,221,.55),0 2px 10px rgba(0,0,0,.35);
+    font-family:var(--sans);font-size:clamp(11px,2.9vw,14px);font-weight:600;letter-spacing:.22em;text-indent:.22em;color:#fff}
+  #rsvp:hover,#rsvp:focus-visible{outline:none;transform:scale(1.06)}
+  #rsvp:hover .ball,#rsvp:focus-visible .ball{animation-duration:6s}
+  @keyframes roll{to{transform:rotate(360deg)}}
   @keyframes heartbeat{
-    0%   {transform:scale(1);box-shadow:0 0 0 0 rgba(255,255,255,0)}
-    14%  {transform:scale(1.07);box-shadow:0 0 0 6px rgba(108,171,221,.12)}
+    0%   {transform:scale(1)}
+    14%  {transform:scale(1.07)}
     28%  {transform:scale(1)}
-    42%  {transform:scale(1.05);box-shadow:0 0 0 4px rgba(108,171,221,.08)}
-    70%  {transform:scale(1);box-shadow:0 0 0 0 rgba(255,255,255,0)}
+    42%  {transform:scale(1.05)}
+    70%  {transform:scale(1)}
     100% {transform:scale(1)}
   }
+  /* kick: squash, then the ball flies up and out while the ring fades */
+  .disc-wrap.kicked{border-color:rgba(255,255,255,0);box-shadow:0 0 0 40px rgba(108,171,221,0)}
+  .disc-wrap.kicked #rsvp{animation:kick .85s cubic-bezier(.4,0,.7,.2) both;pointer-events:none}
+  .disc-wrap.kicked #rsvp .ball{animation:roll .35s linear infinite}
+  @keyframes kick{
+    0%  {transform:translate(0,0) scale(1) rotate(0)}
+    16% {transform:translate(0,10%) scale(.88,.8) rotate(-14deg)}
+    30% {transform:translate(2%,-12%) scale(1.04) rotate(10deg)}
+    100%{transform:translate(60vw,-150vh) scale(.18) rotate(540deg);opacity:0}
+  }
+  .disc-wrap::after{content:"";position:absolute;inset:-1px;border-radius:50%;
+    border:1px solid rgba(108,171,221,.9);opacity:0;transform:scale(1);pointer-events:none}
+  .disc-wrap.kicked::after{animation:ripple .7s ease-out both}
+  @keyframes ripple{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(1.9)}}
 
   /* mute toggle — top-right of the splash */
   .mute-toggle{position:absolute;top:22px;right:22px;z-index:5;
@@ -220,6 +241,9 @@
 
   @media(prefers-reduced-motion:reduce){
     #rsvp{animation:none}
+    #rsvp .ball{animation:none}
+    .disc-wrap.kicked #rsvp{animation:none;opacity:0}
+    .disc-wrap.kicked::after{animation:none}
     #confirm.on{animation:none}
     #inv{transition:none}
   }
@@ -241,7 +265,16 @@
     <img class="splash-mark" src="project-logo-horizontal-white.png" alt="Manchester City Yas Residences by Ohana">
     <div class="splash-sub">Phase 2 · Open Days · 11 – 16 October</div>
     <div class="disc-wrap">
-      <button id="rsvp" aria-label="RSVP">RSVP</button>
+      <button id="rsvp" type="button" aria-label="RSVP">
+      <svg class="ball" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+        <defs><radialGradient id="ballShade" cx="38%" cy="32%" r="72%"><stop offset="0" stop-color="#ffffff"/><stop offset=".7" stop-color="#eef3f9"/><stop offset="1" stop-color="#b9c7da"/></radialGradient></defs>
+        <circle cx="50" cy="50" r="48" fill="url(#ballShade)"/>
+        <g fill="#16244c"><polygon points="50.00,28.00 39.54,20.40 43.53,8.10 56.47,8.10 60.46,20.40"/><polygon points="70.92,43.20 74.92,30.90 87.85,30.90 91.85,43.20 81.38,50.80"/><polygon points="62.93,67.80 75.86,67.80 79.86,80.10 69.40,87.70 58.94,80.10"/><polygon points="37.07,67.80 41.06,80.10 30.60,87.70 20.14,80.10 24.14,67.80"/><polygon points="29.08,43.20 18.62,50.80 8.15,43.20 12.15,30.90 25.08,30.90"/></g>
+        <g stroke="#16244c" stroke-width="1.4" stroke-linecap="round"><line x1="50.00" y1="28.00" x2="50.00" y2="31.00"/><line x1="43.53" y1="8.10" x2="42.68" y2="2.56"/><line x1="56.47" y1="8.10" x2="57.32" y2="2.56"/><line x1="70.92" y1="43.20" x2="68.07" y2="44.13"/><line x1="87.85" y1="30.90" x2="92.85" y2="28.38"/><line x1="91.85" y1="43.20" x2="97.38" y2="42.30"/><line x1="62.93" y1="67.80" x2="61.17" y2="65.37"/><line x1="79.86" y1="80.10" x2="83.81" y2="84.08"/><line x1="69.40" y1="87.70" x2="71.96" y2="92.68"/><line x1="37.07" y1="67.80" x2="38.83" y2="65.37"/><line x1="30.60" y1="87.70" x2="28.04" y2="92.68"/><line x1="20.14" y1="80.10" x2="16.19" y2="84.08"/><line x1="29.08" y1="43.20" x2="31.93" y2="44.13"/><line x1="8.15" y1="43.20" x2="2.62" y2="42.30"/><line x1="12.15" y1="30.90" x2="7.15" y2="28.38"/></g>
+        <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(22,36,76,.35)" stroke-width="1"/>
+      </svg>
+      <span class="label">RSVP</span>
+      </button>
     </div>
   </div>
   <button class="mute-toggle" id="muteToggle" type="button" aria-label="Enable sound">
