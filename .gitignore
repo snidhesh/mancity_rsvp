@@ -1,0 +1,16 @@
+node_modules
+.next
+out
+.env
+.env.local
+.env.*.local
+.vercel
+*.log
+.DS_Store
+next-env.d.ts
+
+# source media and brochures — never commit (96 MB PDF, 40 MB teasers).
+# Only the compressed outputs in public/ are tracked.
+assets/
+*.pdf
+tsconfig.tsbuildinfo
