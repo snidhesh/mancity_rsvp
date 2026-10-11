@@ -177,7 +177,7 @@
     var ok = false;
     var message = "";
     try {
-      var res = await fetch(BASE + "api/invitation", {
+      var res = await fetch(BASE + "api/invitation/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: name, phone: phone, email: email, day: day, slot: slot, interest: interest, guests: guests, ref: ref, website: website, elapsed: Date.now() - LOADED_AT })
@@ -210,7 +210,7 @@
     document.getElementById("confp").textContent = "A confirmation with your calendar invite is on its way to " + email + ".";
     document.getElementById("confDay").textContent = dayText + " 2026";
     document.getElementById("confSlot").textContent = slotText;
-    document.getElementById("ics").href = BASE + "api/ics?day=" + encodeURIComponent(day) + "&slot=" + encodeURIComponent(slot);
+    document.getElementById("ics").href = BASE + "api/ics/?day=" + encodeURIComponent(day) + "&slot=" + encodeURIComponent(slot);
 
     document.querySelector(".wrap").classList.add("done");
     document.getElementById("confirm").classList.add("on");

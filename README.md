@@ -56,8 +56,8 @@ Quick checks:
 
 ```
 curl -I http://localhost:3002/
-curl 'http://localhost:3002/api/ics?day=2026-10-12&slot=12-16'
-curl -X POST http://localhost:3002/api/invitation -H 'Origin: http://localhost:3002' \
+curl 'http://localhost:3002/api/ics/?day=2026-10-12&slot=12-16'
+curl -X POST http://localhost:3002/api/invitation/ -H 'Origin: http://localhost:3002' \
   -H 'content-type: application/json' \
   -d '{"name":"Test Guest","phone":"+971501234567","email":"you@example.com","day":"2026-10-12","slot":"12-16","interest":"3 BR Duplex","guests":"Just me","ref":"test-agent","website":"","elapsed":5000}'
 ```

@@ -44,7 +44,7 @@ export async function sendInvitationConfirmation(
   const to = oneLine(lead.email);
   const day = dayLabel(lead.day);
   const slot = slotLabel(lead.slot);
-  const icsUrl = `${PUBLIC_BASE}/api/ics?day=${encodeURIComponent(lead.day)}&slot=${encodeURIComponent(lead.slot)}`;
+  const icsUrl = `${PUBLIC_BASE}/api/ics/?day=${encodeURIComponent(lead.day)}&slot=${encodeURIComponent(lead.slot)}`;
 
   try {
     const { error } = await resend.emails.send({
