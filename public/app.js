@@ -18,7 +18,7 @@
      and at / locally. Relative "api/…" only resolves correctly with a trailing
      slash, so compute the base explicitly. */
   var path = location.pathname;
-  var BASE = path.endsWith("/") ? path : path.replace(/[^/]*$/, "");
+  var BASE = path.endsWith("/") ? path : (/\.html$/.test(path) ? path.replace(/[^/]*$/, "") : path + "/");
 
   /* ---------- background video: pick by orientation once ---------- */
   var bg = document.getElementById("bg");

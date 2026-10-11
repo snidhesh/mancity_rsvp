@@ -31,6 +31,10 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // Serve /yas_residences_rsvp/ and /api/x/ as-is instead of 308ing to the
+  // slash-less form: the parent-site proxy forwards with a trailing slash
+  // and relative asset URLs on the page need it.
+  skipTrailingSlashRedirect: true,
   ...(basePath ? { basePath } : {}),
   async rewrites() {
     return {
