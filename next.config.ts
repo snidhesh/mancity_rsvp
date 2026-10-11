@@ -31,10 +31,6 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // The parent site (blackoak-website) redirects every path to a trailing
-  // slash before proxying. Match that here so /api/* does not bounce back
-  // and forth between the two hosts (308 loop).
-  trailingSlash: true,
   ...(basePath ? { basePath } : {}),
   async rewrites() {
     return {

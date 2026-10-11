@@ -8,6 +8,11 @@
   var LOADED_AT = Date.now();
   var TZ_OFFSET_MS = 4 * 3600 * 1000; // Asia/Dubai, fixed UTC+4
 
+  /* ---------- API URLs ----------
+     The parent site redirects every path to a trailing slash before it
+     proxies, then strips the slash when forwarding. Calling the slashed
+     URLs avoids a redirect through the proxy; on the raw Vercel host it is
+     one same-host 308 (method and body preserved). */
   /* ---------- base path ----------
      The page is served at /yas_residences_rsvp/ behind the parent-site proxy
      and at / locally. Relative "api/…" only resolves correctly with a trailing
