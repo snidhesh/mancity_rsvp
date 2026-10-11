@@ -36,6 +36,13 @@ const nextConfig: NextConfig = {
   // and relative asset URLs on the page need it.
   skipTrailingSlashRedirect: true,
   ...(basePath ? { basePath } : {}),
+  async redirects() {
+    // The bare host has nothing at its root (everything is under basePath);
+    // send visitors to the page instead of a 404.
+    return basePath
+      ? [{ source: "/", destination: `${basePath}/`, basePath: false as const, permanent: false }]
+      : [];
+  },
   async rewrites() {
     return {
       // Serve the static invitation at the app root (basePath is prepended
