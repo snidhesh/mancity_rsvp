@@ -5,24 +5,15 @@
  */
 
 import { createHash } from "node:crypto";
-import {
-  EVENT_NAME,
-  MAP_URL,
-  PUBLIC_BASE,
-  SALES_CENTER_ADDRESS,
-  SHORT_NAME,
-  TZ_OFFSET_HOURS,
-  VENUE,
-  VENUE_CITY,
-  dayLabel,
-  findSlot,
-} from "./event";
+import { EVENT_NAME, PUBLIC_BASE, SHORT_NAME, TZ_OFFSET_HOURS, dayLabel, findSlot, venueFor } from "./event";
 
 export interface IcsArgs {
   dayIso: string; // YYYY-MM-DD, already validated against EVENT_DAYS
   slotId: string; // already validated against TIME_SLOTS
   /** Optional guest identity used only to make the UID stable per guest. */
   email?: string;
+  /** Agent-referral slug; selects a per-agent venue override (see venueFor). */
+  ref?: string;
 }
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -74,9 +65,10 @@ export function foldLine(line: string): string {
   return out.join("\r\n");
 }
 
-export function buildIcs({ dayIso, slotId, email }: IcsArgs): string {
+export function buildIcs({ dayIso, slotId, email, ref }: IcsArgs): string {
   const slot = findSlot(slotId);
   if (!slot) throw new Error("unknown slot");
+  const venue = venueFor(ref);
 
   const who = createHash("sha256")
     .update(`${dayIso}|${slotId}|${(email ?? "").toLowerCase()}`)
@@ -87,8 +79,8 @@ export function buildIcs({ dayIso, slotId, email }: IcsArgs): string {
   const description = [
     `${EVENT_NAME}.`,
     `Your visit: ${dayLabel(dayIso)}, ${slot.label} (Gulf Standard Time).`,
-    `Venue: ${VENUE}, ${SALES_CENTER_ADDRESS}.`,
-    `Map: ${MAP_URL}`,
+    `Venue: ${venue.name}, ${venue.address}.`,
+    `Map: ${venue.mapUrl}`,
     "Hosted by BlackOak Real Estate.",
   ].join("\n");
 
@@ -105,7 +97,7 @@ export function buildIcs({ dayIso, slotId, email }: IcsArgs): string {
     `DTEND:${utcStamp(dayIso, slot.end)}`,
     `SUMMARY:${escapeText(`${SHORT_NAME} – Open Days visit`)}`,
     `DESCRIPTION:${escapeText(description)}`,
-    `LOCATION:${escapeText(`${VENUE}, ${VENUE_CITY} – ${SALES_CENTER_ADDRESS}`)}`,
+    `LOCATION:${escapeText(`${venue.name}, ${venue.city} – ${venue.address}`)}`,
     `URL:${PUBLIC_BASE}/`,
     "STATUS:CONFIRMED",
     "TRANSP:OPAQUE",

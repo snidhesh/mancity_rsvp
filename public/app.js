@@ -20,6 +20,24 @@
   var path = location.pathname;
   var BASE = path.endsWith("/") ? path : (/\.html$/.test(path) ? path.replace(/[^/]*$/, "") : path + "/");
 
+  /* ---------- agent referral ----------
+     ?ref=<agent-slug> from the CTA URL. Posted with the RSVP so the CRM can
+     auto-assign the lead, and used to pick a per-agent venue. */
+  var refParam = (new URLSearchParams(location.search).get("ref") || "").trim().toLowerCase();
+  var REF = /^[a-z0-9-]{0,120}$/.test(refParam) ? refParam : "";
+
+  /* ---------- per-agent venue ----------
+     Mirrors VENUE_BY_REF in lib/event.ts — keep them in sync. The HTML
+     carries the default (Dubai) venue; a listed ref swaps it on load. */
+  var VENUE_BY_REF = {
+    "mirabela-antonache": { city: "Abu Dhabi", mapUrl: "https://maps.app.goo.gl/PjVbi6wqBuYSyRun8" }
+  };
+  var venue = Object.prototype.hasOwnProperty.call(VENUE_BY_REF, REF) ? VENUE_BY_REF[REF] : null;
+  if (venue) {
+    Array.prototype.forEach.call(document.querySelectorAll(".itin-v .sub"), function (el) { el.textContent = venue.city; });
+    Array.prototype.forEach.call(document.querySelectorAll(".itin-map"), function (a) { a.href = venue.mapUrl; });
+  }
+
   /* ---------- background video: pick by orientation once ---------- */
   var bg = document.getElementById("bg");
   var sea = document.getElementById("sea");
@@ -182,18 +200,13 @@
     submit.disabled = true;
     submit.textContent = "Reserving…";
 
-    // Agent-referral slug from the CTA URL (?ref=<agent-slug>). The CRM
-    // resolves it to an active agent and silently ignores anything else.
-    var refParam = (new URLSearchParams(location.search).get("ref") || "").trim().toLowerCase();
-    var ref = /^[a-z0-9-]{0,120}$/.test(refParam) ? refParam : "";
-
     var ok = false;
     var message = "";
     try {
       var res = await fetch(BASE + "api/invitation/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name, phone: phone, email: email, day: day, slot: slot, interest: interest, guests: guests, ref: ref, website: website, elapsed: Date.now() - LOADED_AT })
+        body: JSON.stringify({ name: name, phone: phone, email: email, day: day, slot: slot, interest: interest, guests: guests, ref: REF, website: website, elapsed: Date.now() - LOADED_AT })
       });
       if (res.ok) {
         ok = true;
@@ -223,7 +236,7 @@
     document.getElementById("confp").textContent = "A confirmation with your calendar invite is on its way to " + email + ".";
     document.getElementById("confDay").textContent = dayText + " 2026";
     document.getElementById("confSlot").textContent = slotText;
-    document.getElementById("ics").href = BASE + "api/ics/?day=" + encodeURIComponent(day) + "&slot=" + encodeURIComponent(slot);
+    document.getElementById("ics").href = BASE + "api/ics/?day=" + encodeURIComponent(day) + "&slot=" + encodeURIComponent(slot) + (REF ? "&ref=" + encodeURIComponent(REF) : "");
 
     document.querySelector(".wrap").classList.add("done");
     document.getElementById("confirm").classList.add("on");

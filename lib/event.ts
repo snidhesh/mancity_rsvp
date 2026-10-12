@@ -10,10 +10,39 @@ export const SHORT_NAME = "Manchester City Yas Residences";
 export const EVENT_NAME = `${PROJECT_NAME} – Phase 2 Open Days`;
 
 export const VENUE = "Ohana Sales Center";
-export const VENUE_CITY = "Abu Dhabi";
+export const VENUE_CITY = "Dubai";
 /** TODO: replace with the street address once confirmed. Shown in the email and the .ics. */
-export const SALES_CENTER_ADDRESS = "Ohana Development, Abu Dhabi, United Arab Emirates";
-export const MAP_URL = "https://maps.app.goo.gl/PjVbi6wqBuYSyRun8";
+export const SALES_CENTER_ADDRESS = "Ohana Development, Dubai, United Arab Emirates";
+export const MAP_URL = "https://maps.app.goo.gl/qddrPSTFDcBexCmC8";
+
+export interface Venue {
+  name: string;
+  city: string;
+  address: string;
+  mapUrl: string;
+}
+
+export const DEFAULT_VENUE: Venue = { name: VENUE, city: VENUE_CITY, address: SALES_CENTER_ADDRESS, mapUrl: MAP_URL };
+
+/**
+ * Per-agent venue overrides, keyed by the `?ref=<agent-slug>` on the CTA URL.
+ * Guests arriving through a listed agent see this venue on the page, in the
+ * confirmation email and in the .ics; everyone else gets DEFAULT_VENUE.
+ * public/app.js carries the same table by hand — keep them in sync.
+ */
+export const VENUE_BY_REF: Record<string, Venue> = {
+  "mirabela-antonache": {
+    name: VENUE,
+    city: "Abu Dhabi",
+    address: "Ohana Development, Abu Dhabi, United Arab Emirates",
+    mapUrl: "https://maps.app.goo.gl/PjVbi6wqBuYSyRun8",
+  },
+};
+
+export function venueFor(ref?: string): Venue {
+  const key = (ref ?? "").trim().toLowerCase();
+  return Object.prototype.hasOwnProperty.call(VENUE_BY_REF, key) ? VENUE_BY_REF[key] : DEFAULT_VENUE;
+}
 
 export const DATES_TEXT = "11 – 16 October 2026";
 export const HOURS_TEXT = "10 AM – 6 PM";

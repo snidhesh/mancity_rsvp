@@ -5,23 +5,26 @@ import { DAY_ISOS, SLOT_IDS } from "@/lib/event";
 export const runtime = "nodejs";
 
 /**
- * GET /api/ics?day=YYYY-MM-DD&slot=<id>
+ * GET /api/ics?day=YYYY-MM-DD&slot=<id>[&ref=<agent-slug>]
  *
  * Returns a calendar invite for the chosen visit slot. Both parameters are
  * validated against the server-side constants; no user text is echoed, so
- * the file content is fully controlled by lib/event.ts. Served as a real
+ * the file content is fully controlled by lib/event.ts. `ref` only selects
+ * a per-agent venue override from the same file; unknown slugs fall back. Served as a real
  * text/calendar URL (not a data: URI) so iOS Safari hands it to Calendar.
  */
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const day = url.searchParams.get("day") ?? "";
   const slot = url.searchParams.get("slot") ?? "";
+  const refRaw = (url.searchParams.get("ref") ?? "").trim();
+  const ref = /^[a-z0-9-]{0,120}$/i.test(refRaw) ? refRaw : "";
 
   if (!(DAY_ISOS as readonly string[]).includes(day) || !(SLOT_IDS as readonly string[]).includes(slot)) {
     return NextResponse.json({ ok: false, error: "Unknown day or slot" }, { status: 400, headers: { "Cache-Control": "no-store" } });
   }
 
-  const ics = buildIcs({ dayIso: day, slotId: slot });
+  const ics = buildIcs({ dayIso: day, slotId: slot, ref });
   return new Response(ics, {
     status: 200,
     headers: {

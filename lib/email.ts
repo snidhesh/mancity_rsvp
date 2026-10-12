@@ -1,18 +1,7 @@
 import { Resend } from "resend";
 import type { InvitationLead } from "./crm";
-import {
-  DATES_TEXT,
-  HOURS_TEXT,
-  MAP_URL,
-  PROJECT_NAME,
-  PUBLIC_BASE,
-  SALES_CENTER_ADDRESS,
-  SHORT_NAME,
-  VENUE,
-  VENUE_CITY,
-  dayLabel,
-  slotLabel,
-} from "./event";
+import { DATES_TEXT, HOURS_TEXT, PROJECT_NAME, PUBLIC_BASE, SHORT_NAME, dayLabel, slotLabel, venueFor } from "./event";
+import type { Venue } from "./event";
 import { ICS_FILENAME } from "./ics";
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
@@ -44,7 +33,9 @@ export async function sendInvitationConfirmation(
   const to = oneLine(lead.email);
   const day = dayLabel(lead.day);
   const slot = slotLabel(lead.slot);
-  const icsUrl = `${PUBLIC_BASE}/api/ics/?day=${encodeURIComponent(lead.day)}&slot=${encodeURIComponent(lead.slot)}`;
+  const venue = venueFor(lead.ref);
+  const refQuery = lead.ref ? `&ref=${encodeURIComponent(lead.ref)}` : "";
+  const icsUrl = `${PUBLIC_BASE}/api/ics/?day=${encodeURIComponent(lead.day)}&slot=${encodeURIComponent(lead.slot)}${refQuery}`;
 
   try {
     const { error } = await resend.emails.send({
@@ -52,8 +43,8 @@ export async function sendInvitationConfirmation(
       to,
       subject: `You're confirmed, ${firstName} — ${day}, ${SHORT_NAME}`,
       replyTo: "info@blackoak-re.com",
-      html: renderHtml({ firstName, day, slot, icsUrl }),
-      text: renderText({ firstName, day, slot, icsUrl }),
+      html: renderHtml({ firstName, day, slot, icsUrl, venue }),
+      text: renderText({ firstName, day, slot, icsUrl, venue }),
       attachments: [
         {
           filename: ICS_FILENAME,
@@ -78,9 +69,10 @@ interface RenderArgs {
   day: string;
   slot: string;
   icsUrl: string;
+  venue: Venue;
 }
 
-function renderText({ firstName, day, slot, icsUrl }: RenderArgs): string {
+function renderText({ firstName, day, slot, icsUrl, venue }: RenderArgs): string {
   return [
     `Dear ${firstName},`,
     "",
@@ -88,9 +80,9 @@ function renderText({ firstName, day, slot, icsUrl }: RenderArgs): string {
     "",
     `The Day      ${day} 2026`,
     `The Time     ${slot}`,
-    `The Address  ${VENUE}, ${VENUE_CITY}`,
-    `             ${SALES_CENTER_ADDRESS}`,
-    `Map:         ${MAP_URL}`,
+    `The Address  ${venue.name}, ${venue.city}`,
+    `             ${venue.address}`,
+    `Map:         ${venue.mapUrl}`,
     `Calendar:    ${icsUrl}`,
     "",
     `Open Days run ${DATES_TEXT}, ${HOURS_TEXT} daily.`,
@@ -100,7 +92,7 @@ function renderText({ firstName, day, slot, icsUrl }: RenderArgs): string {
   ].join("\n");
 }
 
-function renderHtml({ firstName, day, slot, icsUrl }: RenderArgs): string {
+function renderHtml({ firstName, day, slot, icsUrl, venue }: RenderArgs): string {
   const name = escapeHtml(firstName);
 
   // Palette matches public/invitation.html
@@ -168,9 +160,9 @@ function renderHtml({ firstName, day, slot, icsUrl }: RenderArgs): string {
           <tr>
             <td style="${rowK}">The Address</td>
             <td style="${rowV}">
-              ${escapeHtml(VENUE)}<br/>
-              <span style="color:${mute};font-size:.8em">${escapeHtml(SALES_CENTER_ADDRESS)}</span><br/>
-              <a href="${MAP_URL}" style="display:inline-block;margin-top:10px;font-family:${sans};font-size:10.5px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:${sky};text-decoration:none;border-bottom:1px solid ${sky};padding-bottom:3px">View on map &rarr;</a>
+              ${escapeHtml(venue.name)}<br/>
+              <span style="color:${mute};font-size:.8em">${escapeHtml(venue.address)}</span><br/>
+              <a href="${venue.mapUrl}" style="display:inline-block;margin-top:10px;font-family:${sans};font-size:10.5px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:${sky};text-decoration:none;border-bottom:1px solid ${sky};padding-bottom:3px">View on map &rarr;</a>
             </td>
           </tr>
         </table>

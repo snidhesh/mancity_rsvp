@@ -163,7 +163,7 @@ export async function POST(req: Request) {
   if (!crm.ok) {
     console.error(`[invitation] CRM did not accept lead: status=${crm.status}`);
   } else if (crm.status === 201 && crm.id !== undefined) {
-    const ics = buildIcs({ dayIso: lead.day, slotId: lead.slot, email: lead.email });
+    const ics = buildIcs({ dayIso: lead.day, slotId: lead.slot, email: lead.email, ref: lead.ref });
     const emailResult = await sendInvitationConfirmation(lead, ics);
     if (!emailResult.ok) {
       console.error(`[invitation] Email not sent for lead ${crm.id}: ${emailResult.error ?? "unknown"}`);
