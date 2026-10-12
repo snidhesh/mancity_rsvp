@@ -1,7 +1,7 @@
 # Manchester City Yas Residences — Phase 2 Open Days RSVP
 
 Invitation page for the Phase 2 launch of Manchester City Yas Residences by Ohana.
-Open Days at the Ohana Sales Center, Dubai, **Sunday 11 – Friday 16 October 2026, 10 AM – 6 PM**.
+Open Days at the Ohana Sales Center, Abu Dhabi, **Sunday 11 – Friday 16 October 2026, 10 AM – 6 PM**.
 
 - Production: `https://mancityrsvp.vercel.app/yas_residences_rsvp/`
 - Public URL (proxied by the parent site): `https://www.blackoak-re.com/yas_residences_rsvp/`

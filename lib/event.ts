@@ -10,10 +10,10 @@ export const SHORT_NAME = "Manchester City Yas Residences";
 export const EVENT_NAME = `${PROJECT_NAME} – Phase 2 Open Days`;
 
 export const VENUE = "Ohana Sales Center";
-export const VENUE_CITY = "Dubai";
+export const VENUE_CITY = "Abu Dhabi";
 /** TODO: replace with the street address once confirmed. Shown in the email and the .ics. */
-export const SALES_CENTER_ADDRESS = "Ohana Development, Dubai, United Arab Emirates";
-export const MAP_URL = "https://maps.app.goo.gl/qddrPSTFDcBexCmC8";
+export const SALES_CENTER_ADDRESS = "Ohana Development, Abu Dhabi, United Arab Emirates";
+export const MAP_URL = "https://maps.app.goo.gl/PjVbi6wqBuYSyRun8";
 
 export const DATES_TEXT = "11 – 16 October 2026";
 export const HOURS_TEXT = "10 AM – 6 PM";
